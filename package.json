@@ -1,0 +1,16 @@
+{
+  "name": "lambdaserve",
+  "version": "1.0.0",
+  "description": "Serve AWS Lambdas offline in you host",
+  "main": "env.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "lambda",
+    "offline"
+  ],
+  "author": "Andrea Di Mario",
+  "license": "MIT"
+}
