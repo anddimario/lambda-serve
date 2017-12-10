@@ -1,8 +1,9 @@
-Serve AWS Lambdas offline in you host
+Serve Lambdas microservices
 
 ### Features
+- aws style lambdas (test aws lambda in localhost)
 - pure nodejs, no modules
-- run multiple lambdas as a local app
+- run multiple lambdas as same app
 
 ### Example usage
 - create a directory for all microservices (example: /myhome/myapp/microservices)
@@ -27,5 +28,5 @@ curl -d"type=register&email=prova@example.com&password=testpw&fullname=prova" ht
 ```
 - login curl:
 ```
-curl -d"type=login&email=prova@example.com&password=testw" http://localhost:3000/user
+curl -d"type=login&email=prova@example.com&password=testpw" http://localhost:3000/user
 ```

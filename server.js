@@ -2,7 +2,6 @@ const querystring = require('querystring');
 const fs = require('fs');
 const http = require('http');
 const url = require('url');
-const exec = require('child_process').exec;
 const env = require('./env');
 
 // set env variables
@@ -33,26 +32,18 @@ const requestHandler = (req, res) => {
           body: JSON.stringify(stringBody),
           queryStringParameters: parsedUrl.query
         };
-        fs.writeFile(`${env.lambdasDir}/${service}/testEvent.json`, JSON.stringify(event), (err) => {
+        const lambda = require(`${env.lambdasDir}/${service}/index`);
+        lambda.handler(event, {}, (err, result) => {
           if (err) {
             res.statusCode = 500;
             res.end(`Event not writed ${err}`);
           } else {
-            const lambda = require(`${env.lambdasDir}/${service}/index`);
-            lambda.handler(event, {}, (err, result) => {
-              if (err) {
-                res.statusCode = 500;
-                res.end(`Event not writed ${err}`);
-              } else {
-                res.statusCode = result.statusCode;
-                for (const header in result.headers) {
-                  res.setHeader(header, result.headers[header]);
-                }
-                res.end(result.body);
-              }
-            });
+            res.statusCode = result.statusCode;
+            for (const header in result.headers) {
+              res.setHeader(header, result.headers[header]);
+            }
+            res.end(result.body);
           }
-
         });
       });
 
@@ -67,8 +58,8 @@ const server = http.createServer(requestHandler);
 
 server.listen(env.PORT, (err) => {
   if (err) {
-    console.log(err)
+    console.log(err);
   }
-  console.log(`Started on ${env.PORT}`)
+  console.log(`Started on ${env.PORT}`);
 })
 
