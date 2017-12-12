@@ -10,6 +10,18 @@ for (const varEnv in env.processEnv) {
 }
 
 const requestHandler = (req, res) => {
+  // Set CORS headers
+  if (env.cors) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, HEAD, DELETE, PUT');
+    res.setHeader('Access-Control-Allow-Headers', 'Authorization,Content-Type,Accept,Origin,User-Agent,DNT,Cache-Control,X-Mx-ReqToken,Keep-Alive,X-Requested-With,If-Modified-Since');
+    if (req.method === 'OPTIONS') {
+      res.writeHead(200);
+      res.end();
+      return;
+    }
+  }
 
   const parsedUrl = url.parse(req.url, true);
   const service = parsedUrl.pathname.split('/')[1];
@@ -22,14 +34,14 @@ const requestHandler = (req, res) => {
         body.push(chunk);
       }).on('end', function () {
         let stringBody = Buffer.concat(body).toString();
-        if (stringBody) {
+        if (stringBody && (req.headers['content-type'] === 'application/x-www-form-urlencoded')) {
           stringBody = querystring.parse(stringBody);
-
+          stringBody = JSON.stringify(stringBody);
         }
 
         const event = {
           httpMethod: req.method,
-          body: JSON.stringify(stringBody),
+          body: stringBody,
           queryStringParameters: parsedUrl.query
         };
         const lambda = require(`${env.lambdasDir}/${service}/index`);

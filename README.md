@@ -4,6 +4,7 @@ Serve Lambdas microservices
 - aws style lambdas (test aws lambda in localhost)
 - pure nodejs, no modules
 - run multiple lambdas as same app
+- cors
 
 ### Example usage
 - create a directory for all microservices (example: /myhome/myapp/microservices)
@@ -18,7 +19,8 @@ module.exports = {
     DYNAMO_REGION: 'eu-west-1',
     DYNAMO_ENDPOINT: 'http://localhost:8000',
     JWT_SECRET: 'mygreatsecret'
-  }
+  },
+  cors: true
 }
 ```
 - run: `node server.js`
