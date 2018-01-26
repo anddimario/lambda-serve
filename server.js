@@ -39,24 +39,48 @@ const requestHandler = (req, res) => {
           stringBody = JSON.stringify(stringBody);
         }
 
-        const event = {
-          httpMethod: req.method,
-          body: stringBody,
-          queryStringParameters: parsedUrl.query
-        };
-        const lambda = require(`${env.lambdasDir}/${service}/index`);
-        lambda.handler(event, {}, (err, result) => {
-          if (err) {
-            res.statusCode = 500;
-            res.end(`Event not writed ${err}`);
-          } else {
-            res.statusCode = result.statusCode;
-            for (const header in result.headers) {
-              res.setHeader(header, result.headers[header]);
+        if (env.provider === 'aws') {
+          const event = {
+            httpMethod: req.method,
+            body: stringBody,
+            queryStringParameters: parsedUrl.query
+          };
+          const lambda = require(`${env.lambdasDir}/${service}/index`);
+          lambda.handler(event, {}, (err, result) => {
+            if (err) {
+              res.statusCode = 500;
+              res.end(`Event not writed ${err}`);
+            } else {
+              res.statusCode = result.statusCode;
+              for (const header in result.headers) {
+                res.setHeader(header, result.headers[header]);
+              }
+              res.end(result.body);
             }
-            res.end(result.body);
+          });
+        } else if (env.provider === 'google') {
+          // https://cloud.google.com/functions/docs/writing/http?hl=it
+          const event = {
+            body: JSON.parse(stringBody),
+            query: parsedUrl.query,
+            method: req.method,
+            get: req.headers
+          };
+          res.status = (code) => {
+            res.statusCode = code;
+            return res;
           }
-        });
+          res.send = (message) => {
+            res.end(message);
+            return res;
+          }
+          const lambda = require(`${env.lambdasDir}/${service}/index`);
+          lambda.handler(event, res);
+        } else {
+          process.stdout.write('Provider not supported')
+          res.statusCode = 500;
+          res.end('Provider not supported');
+        }
       });
 
     } else {
