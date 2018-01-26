@@ -61,16 +61,21 @@ const requestHandler = (req, res) => {
         } else if (env.provider === 'google') {
           // https://cloud.google.com/functions/docs/writing/http?hl=it
           const event = {
-            body: JSON.parse(stringBody),
             query: parsedUrl.query,
             method: req.method,
             get: req.headers
           };
+          if (stringBody) {
+            event.body = JSON.parse(stringBody);
+          }
           res.status = (code) => {
             res.statusCode = code;
             return res;
           }
           res.send = (message) => {
+            if (typeof message === 'object') {
+              message = JSON.stringify(message);
+            }
             res.end(message);
             return res;
           }
